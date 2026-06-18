@@ -1,0 +1,131 @@
+{
+  "name": "Get Contractors",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "f649218b-8f4d-45cc-937f-82e073cd7fe0",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d827826e-946a-4312-bc90-d5ff6af2137e",
+      "name": "Webhook",
+      "webhookId": "f649218b-8f4d-45cc-937f-82e073cd7fe0"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HGtYfSj8T-_itoNIWZNNv2pqfX8XFY6JQn1iPbRwWjk",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HGtYfSj8T-_itoNIWZNNv2pqfX8XFY6JQn1iPbRwWjk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2133088224,
+          "mode": "list",
+          "cachedResultName": "Contractors",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HGtYfSj8T-_itoNIWZNNv2pqfX8XFY6JQn1iPbRwWjk/edit#gid=2133088224"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "87464454-16d1-4d3e-9531-839799832212",
+      "name": "Get All Contractors",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HCNUohHWcRXgzeY1",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\n\nconst contractors = rows\n  .map(item => {\n    const row = item.json;\n    return {\n      name: row['Name'] || '',\n      vendor_id: String(row['Vendor ID'] || '')\n    };\n  })\n  .filter(c => c.name !== '');\n\nreturn {\n  json: {\n    contractors: contractors,\n    count: contractors.length\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "93c99173-355e-4188-9b2b-765bae227bfb",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "0567596e-a895-4cd5-a320-9a51300fc7ce",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get All Contractors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Contractors": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7a6dac79-924f-4bbc-bac1-5d34311ddf3b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "38336a295879c2ebdfed8c82e3ce4e30eed02601024aa696561c2e9529d21fbc"
+  },
+  "nodeGroups": [],
+  "id": "phkeI4MqnGh0jIzU",
+  "tags": []
+}

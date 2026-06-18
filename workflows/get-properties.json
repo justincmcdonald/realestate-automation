@@ -1,0 +1,139 @@
+{
+  "name": "Get Properties",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "63f1f7d1-676f-474c-96e9-49325d89c753",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e15120cb-e1df-49a3-9a6f-f3fc2eb306a8",
+      "name": "Webhook",
+      "webhookId": "63f1f7d1-676f-474c-96e9-49325d89c753"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\n\nconst properties = rows\n  .filter(item => {\n    const val = (item.json['Active'] || '').toString().toLowerCase();\n    return val === 'yes' || val === 'y';\n  })\n  .map(item => {\n    const row = item.json;\n    return {\n      address: row['Address'] || '',\n      bank: row['Bank'] || '',\n      customer_id: row['Customer ID'] || ''\n    };\n  });\n\nreturn {\n  json: {\n    properties: properties,\n    count: properties.length\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "9b256e86-6ab7-420e-9270-5a394a5971b4",
+      "name": "Format Properties"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HGtYfSj8T-_itoNIWZNNv2pqfX8XFY6JQn1iPbRwWjk",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HGtYfSj8T-_itoNIWZNNv2pqfX8XFY6JQn1iPbRwWjk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "All Homes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HGtYfSj8T-_itoNIWZNNv2pqfX8XFY6JQn1iPbRwWjk/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Active",
+              "lookupValue": "Y"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4845b354-fc4c-4db6-9c31-7313486f636f",
+      "name": "Get All Properties",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HCNUohHWcRXgzeY1",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "5d3334a3-4ef8-42ef-86ff-931c62e25077",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get All Properties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Properties": {
+      "main": [
+        [
+          {
+            "node": "Format Properties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Properties": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "88e781c0-e432-4861-b73e-f50b2d7c2952",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "38336a295879c2ebdfed8c82e3ce4e30eed02601024aa696561c2e9529d21fbc"
+  },
+  "nodeGroups": [],
+  "id": "0zdyS1wkZfLaL2J8",
+  "tags": []
+}
