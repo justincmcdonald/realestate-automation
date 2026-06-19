@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#5b6b7a"/>
+    </marker>
+    <marker id="arrowLight" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#9aa7b3"/>
+    </marker>
+    <style>
+      .layer-label { font-size: 13px; font-weight: 700; fill: #8a98a6; letter-spacing: 2px; }
+      .box-title { font-size: 15px; font-weight: 700; }
+      .box-sub { font-size: 11.5px; }
+      .pill { font-size: 12px; font-weight: 600; }
+      .note { font-size: 11px; fill: #6b7986; }
+      .edge { stroke: #5b6b7a; stroke-width: 2; fill: none; }
+      .edge-dash { stroke: #9aa7b3; stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+      .edge-label { font-size: 10.5px; fill: #6b7986; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="1000" fill="#f4f6f8"/>
+  <text x="40" y="46" font-size="26" font-weight="800" fill="#1f2d3a">Real Estate Group — Automation Architecture</text>
+  <text x="40" y="70" font-size="14" fill="#6b7986">Multi-company financial automation platform · Lovable → n8n (iPaaS) → QuickBooks + Google Sheets</text>
+
+  <!-- ================= LAYER 1: FRONTEND ================= -->
+  <text x="40" y="108" class="layer-label">PRESENTATION LAYER</text>
+  <rect x="40" y="120" width="1320" height="130" rx="10" fill="#eaf2fb" stroke="#cfe0f2" stroke-width="1.5"/>
+  <text x="60" y="145" class="box-title" fill="#1f4e7a">Lovable Frontend — React · Supabase · TanStack</text>
+
+  <!-- frontend page pills -->
+  <g>
+    <rect x="60" y="160" width="190" height="70" rx="8" fill="#ffffff" stroke="#2f80c4" stroke-width="1.5"/>
+    <text x="155" y="186" text-anchor="middle" class="pill" fill="#1f4e7a">Submit Invoice</text>
+    <text x="155" y="206" text-anchor="middle" class="note">public · contractor-facing</text>
+    <text x="155" y="221" text-anchor="middle" class="note">name → property → bill</text>
+  </g>
+  <g>
+    <rect x="268" y="160" width="180" height="70" rx="8" fill="#ffffff" stroke="#3a7d44" stroke-width="1.5"/>
+    <text x="358" y="186" text-anchor="middle" class="pill" fill="#2c5e34">Pay Bills</text>
+    <text x="358" y="206" text-anchor="middle" class="note">owner · filter by company</text>
+    <text x="358" y="221" text-anchor="middle" class="note">→ record payment</text>
+  </g>
+  <g>
+    <rect x="466" y="160" width="180" height="70" rx="8" fill="#ffffff" stroke="#3a7d44" stroke-width="1.5"/>
+    <text x="556" y="186" text-anchor="middle" class="pill" fill="#2c5e34">Property Mgmt</text>
+    <text x="556" y="211" text-anchor="middle" class="note">add new property</text>
+  </g>
+  <g>
+    <rect x="664" y="160" width="180" height="70" rx="8" fill="#ffffff" stroke="#3a7d44" stroke-width="1.5"/>
+    <text x="754" y="186" text-anchor="middle" class="pill" fill="#2c5e34">Personal Invoice</text>
+    <text x="754" y="211" text-anchor="middle" class="note">out-of-pocket expense</text>
+  </g>
+  <g>
+    <rect x="862" y="160" width="180" height="70" rx="8" fill="#ffffff" stroke="#3a7d44" stroke-width="1.5"/>
+    <text x="952" y="186" text-anchor="middle" class="pill" fill="#2c5e34">Contractor Mgmt</text>
+    <text x="952" y="211" text-anchor="middle" class="note">add / remove vendors</text>
+  </g>
+  <g>
+    <rect x="1060" y="160" width="180" height="70" rx="8" fill="#ffffff" stroke="#7a7a7a" stroke-width="1.5"/>
+    <text x="1150" y="186" text-anchor="middle" class="pill" fill="#555">Admin Dashboard</text>
+    <text x="1150" y="211" text-anchor="middle" class="note">overview (TBD)</text>
+  </g>
+
+  <!-- arrows down to n8n -->
+  <path class="edge" d="M155 250 L155 300" marker-end="url(#arrow)"/>
+  <text x="162" y="278" class="edge-label">POST / GET webhooks (JSON)</text>
+  <path class="edge" d="M700 250 L700 300" marker-end="url(#arrow)"/>
+
+  <!-- ================= LAYER 2: ORCHESTRATION ================= -->
+  <text x="40" y="328" class="layer-label">ORCHESTRATION LAYER — iPaaS</text>
+  <rect x="40" y="340" width="1320" height="330" rx="10" fill="#fef6e9" stroke="#f3dcae" stroke-width="1.5"/>
+  <text x="60" y="365" class="box-title" fill="#9a6b15">n8n Cloud — your-n8n-instance.example.com</text>
+  <text x="60" y="384" class="note">Webhook-triggered workflows · credential isolation per company · routing logic</text>
+
+  <!-- Submit Invoice workflow with Switch -->
+  <rect x="60" y="398" width="640" height="250" rx="9" fill="#ffffff" stroke="#e0b35e" stroke-width="1.5"/>
+  <text x="80" y="422" class="box-title" font-size="14" fill="#7a5410">Submit Invoice Workflow (multi-company)</text>
+
+  <rect x="80" y="436" width="120" height="46" rx="7" fill="#fdf0d6" stroke="#e0b35e"/>
+  <text x="140" y="456" text-anchor="middle" class="box-sub" font-weight="700">Get Property</text>
+  <text x="140" y="472" text-anchor="middle" class="note">lookup Company</text>
+
+  <path class="edge" d="M200 459 L236 459" marker-end="url(#arrow)"/>
+
+  <rect x="238" y="436" width="110" height="46" rx="7" fill="#fde3c0" stroke="#d99435"/>
+  <text x="293" y="456" text-anchor="middle" class="box-sub" font-weight="700">Switch</text>
+  <text x="293" y="472" text-anchor="middle" class="note">route on Company</text>
+
+  <!-- 4 branches -->
+  <path class="edge" d="M348 452 L392 442" marker-end="url(#arrow)"/>
+  <path class="edge" d="M348 459 L392 488" marker-end="url(#arrow)"/>
+  <path class="edge-dash" d="M348 466 L392 534" marker-end="url(#arrowLight)"/>
+  <path class="edge-dash" d="M348 473 L392 580" marker-end="url(#arrowLight)"/>
+
+  <rect x="394" y="424" width="288" height="40" rx="6" fill="#e9f5ec" stroke="#3a7d44"/>
+  <text x="404" y="442" class="box-sub" font-weight="700" fill="#2c5e34">Branch 1 — Company A</text>
+  <text x="404" y="457" class="note">→ Get Vendor → IF exists → Create Bill · [QB Production]</text>
+
+  <rect x="394" y="470" width="288" height="40" rx="6" fill="#e9f5ec" stroke="#3a7d44"/>
+  <text x="404" y="488" class="box-sub" font-weight="700" fill="#2c5e34">Branch 2 — Company B</text>
+  <text x="404" y="503" class="note">→ Get Vendor → IF exists → Create Bill · [QB Sandbox]</text>
+
+  <rect x="394" y="516" width="288" height="40" rx="6" fill="#f1f1f1" stroke="#9aa7b3" stroke-dasharray="4 3"/>
+  <text x="404" y="534" class="box-sub" font-weight="700" fill="#7a7a7a">Branch 3 — Company C  (stubbed)</text>
+  <text x="404" y="549" class="note">credential pending adoption</text>
+
+  <rect x="394" y="562" width="288" height="40" rx="6" fill="#f1f1f1" stroke="#9aa7b3" stroke-dasharray="4 3"/>
+  <text x="404" y="580" class="box-sub" font-weight="700" fill="#7a7a7a">Branch 4 — Company D (stubbed)</text>
+  <text x="404" y="595" class="note">credential pending adoption</text>
+
+  <text x="80" y="630" class="note">Vendor resolved by name lookup inside the correct QB account — no stored cross-account IDs.</text>
+
+  <!-- Other workflows -->
+  <rect x="720" y="398" width="300" height="250" rx="9" fill="#ffffff" stroke="#e0b35e" stroke-width="1.5"/>
+  <text x="740" y="422" class="box-title" font-size="14" fill="#7a5410">Get Unpaid Bills (fan-out)</text>
+  <text x="740" y="444" class="note">4 × QB "Get Many" (per company)</text>
+  <text x="740" y="462" class="note">→ Set node tags company + bank</text>
+  <text x="740" y="480" class="note">→ Merge → format → Respond</text>
+  <rect x="740" y="492" width="260" height="40" rx="6" fill="#e9f5ec" stroke="#3a7d44"/>
+  <text x="750" y="517" class="box-sub" fill="#2c5e34">One unified bill list, each tagged by company</text>
+
+  <text x="740" y="560" class="box-sub" font-weight="700" fill="#7a5410">Supporting workflows</text>
+  <text x="740" y="580" class="note">Process Payment · Property Entry</text>
+  <text x="740" y="598" class="note">Personal Invoice · Get Properties</text>
+  <text x="740" y="616" class="note">Add Contractor · Remove Contractor</text>
+  <text x="740" y="634" class="note">Get Contractors · Bulk Vendor-ID fill</text>
+
+  <!-- AI parse callout -->
+  <rect x="1040" y="398" width="300" height="120" rx="9" fill="#ffffff" stroke="#e0b35e" stroke-width="1.5"/>
+  <text x="1060" y="422" class="box-title" font-size="14" fill="#7a5410">PDF Invoice Parsing</text>
+  <text x="1060" y="446" class="note">Submit Invoice → IF PDF →</text>
+  <text x="1060" y="464" class="note">Google Gemini API (free tier)</text>
+  <text x="1060" y="482" class="note">extracts structured fields →</text>
+  <text x="1060" y="500" class="note">feeds Create Bill</text>
+
+  <rect x="1040" y="534" width="300" height="114" rx="9" fill="#fbeaea" stroke="#d99" stroke-width="1.5"/>
+  <text x="1060" y="558" class="box-title" font-size="13" fill="#9a3b3b">Cross-cutting concern</text>
+  <text x="1060" y="580" class="note">Credential isolation: each company =</text>
+  <text x="1060" y="597" class="note">own QB OAuth2 credential, selected</text>
+  <text x="1060" y="614" class="note">at runtime via Switch. Google Sheets</text>
+  <text x="1060" y="631" class="note">may need same pattern (TBD).</text>
+
+  <!-- arrows down to systems -->
+  <path class="edge" d="M540 648 L540 715" marker-end="url(#arrow)"/>
+  <text x="548" y="688" class="edge-label">create bill / vendor lookup</text>
+  <path class="edge" d="M870 648 L870 715" marker-end="url(#arrow)"/>
+  <text x="878" y="688" class="edge-label">read/write rows</text>
+
+  <!-- ================= LAYER 3: SYSTEMS OF RECORD ================= -->
+  <text x="40" y="745" class="layer-label">SYSTEMS OF RECORD</text>
+
+  <!-- QuickBooks -->
+  <rect x="320" y="758" width="440" height="200" rx="10" fill="#e9f5ec" stroke="#bcdcc4" stroke-width="1.5"/>
+  <text x="340" y="784" class="box-title" fill="#2c5e34">QuickBooks Online — per company</text>
+  <text x="340" y="804" class="note">Each property = Customer · each contractor = Vendor</text>
+
+  <rect x="340" y="816" width="190" height="60" rx="7" fill="#ffffff" stroke="#3a7d44"/>
+  <text x="435" y="840" text-anchor="middle" class="box-sub" font-weight="700" fill="#2c5e34">Company A — Production</text>
+  <text x="435" y="858" text-anchor="middle" class="note">quickbooks.api.intuit.com</text>
+
+  <rect x="548" y="816" width="190" height="60" rx="7" fill="#ffffff" stroke="#3a7d44"/>
+  <text x="643" y="840" text-anchor="middle" class="box-sub" font-weight="700" fill="#2c5e34">Company B — Sandbox</text>
+  <text x="643" y="858" text-anchor="middle" class="note">sandbox-quickbooks...</text>
+
+  <rect x="340" y="886" width="398" height="54" rx="7" fill="#f1f1f1" stroke="#9aa7b3" stroke-dasharray="4 3"/>
+  <text x="539" y="908" text-anchor="middle" class="box-sub" font-weight="700" fill="#7a7a7a">Company C · Company D — future production accounts</text>
+  <text x="539" y="926" text-anchor="middle" class="note">added by dropping in credential + enabling branch</text>
+
+  <!-- Google Sheets -->
+  <rect x="800" y="758" width="540" height="200" rx="10" fill="#eaf2fb" stroke="#cfe0f2" stroke-width="1.5"/>
+  <text x="820" y="784" class="box-title" fill="#1f4e7a">Google Sheets — master database</text>
+
+  <rect x="820" y="800" width="240" height="140" rx="7" fill="#ffffff" stroke="#2f80c4"/>
+  <text x="840" y="822" class="box-sub" font-weight="700" fill="#1f4e7a">Properties Master sheet</text>
+  <text x="840" y="843" class="note">All Homes: Address · Bank ·</text>
+  <text x="840" y="860" class="note">Workbook ID · Customer ID ·</text>
+  <text x="840" y="877" class="note">Date Added · Active · Company*</text>
+  <text x="840" y="900" class="note">Accounts: Bank · Account ID ·</text>
+  <text x="840" y="917" class="note">Company* (* = new for multi-co)</text>
+  <text x="840" y="934" class="note">Contractors: Name · Vendor ID · Active</text>
+
+  <rect x="1080" y="800" width="240" height="140" rx="7" fill="#ffffff" stroke="#2f80c4"/>
+  <text x="1100" y="822" class="box-sub" font-weight="700" fill="#1f4e7a">Per-bank workbooks</text>
+  <text x="1100" y="846" class="note">One workbook per bank</text>
+  <text x="1100" y="864" class="note">One tab per property</text>
+  <text x="1100" y="888" class="note">Columns: ITEM · SUB · PRICE ·</text>
+  <text x="1100" y="905" class="note">CHECK# · CLEARED · INTEREST ·</text>
+  <text x="1100" y="922" class="note">DATE · DRAW · DATE PAID</text>
+
+  <!-- legend -->
+  <rect x="40" y="758" width="260" height="200" rx="10" fill="#ffffff" stroke="#dde4ea" stroke-width="1.5"/>
+  <text x="60" y="784" class="box-title" font-size="13" fill="#1f2d3a">Legend</text>
+  <rect x="60" y="800" width="22" height="14" rx="3" fill="#e9f5ec" stroke="#3a7d44"/>
+  <text x="92" y="811" class="note">Live / built</text>
+  <rect x="60" y="824" width="22" height="14" rx="3" fill="#f1f1f1" stroke="#9aa7b3" stroke-dasharray="4 3"/>
+  <text x="92" y="835" class="note">Stubbed / future adoption</text>
+  <line x1="60" y1="852" x2="82" y2="852" class="edge" marker-end="url(#arrow)"/>
+  <text x="92" y="856" class="note">Active data flow</text>
+  <line x1="60" y1="872" x2="82" y2="872" class="edge-dash" marker-end="url(#arrowLight)"/>
+  <text x="92" y="876" class="note">Planned data flow</text>
+  <text x="60" y="906" class="note">Design principle: one workflow,</text>
+  <text x="60" y="922" class="note">runtime credential switching,</text>
+  <text x="60" y="938" class="note">built to scale 1 → 4 companies.</text>
+</svg>
