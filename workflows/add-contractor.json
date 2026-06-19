@@ -1,0 +1,155 @@
+{
+  "name": "Add Contractor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "add-contractor",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b0806257-523f-4c8d-9a48-65a81fd4d682",
+      "name": "Webhook",
+      "webhookId": "add-contractor"
+    },
+    {
+      "parameters": {
+        "resource": "vendor",
+        "operation": "create",
+        "displayName": "={{ $('Webhook').item.json.body.contractor_name }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.quickbooks",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ef3376b4-d8be-4d2f-8ac3-d7045ca587df",
+      "name": "Create Vendor",
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "QuickBooks Online account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2133088224,
+          "mode": "list",
+          "cachedResultName": "Contractors",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=2133088224"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Webhook').item.json.body.contractor_name }}",
+            "Vendor ID": "={{ $('Create Vendor').item.json.Id }}",
+            "Active": "Y"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor ID",
+              "displayName": "Vendor ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Active",
+              "displayName": "Active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f62a5b21-4b5c-4d34-b730-58e8b2165edb",
+      "name": "Create Vendor (Sheets)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create Vendor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Vendor": {
+      "main": [
+        [
+          {
+            "node": "Create Vendor (Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "de5709c3-0f7c-4736-8492-fc90908d9576",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "38336a295879c2ebdfed8c82e3ce4e30eed02601024aa696561c2e9529d21fbc"
+  },
+  "nodeGroups": [],
+  "id": "Oh8VTTOspKKsrDIF",
+  "tags": []
+}

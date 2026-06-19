@@ -1,0 +1,121 @@
+{
+  "name": "Get Bills Page",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "get-unpaid-bills",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "81f7a3c1-3066-4fc1-95e5-ff655d29c37e",
+      "name": "Webhook",
+      "webhookId": "get-unpaid-bills"
+    },
+    {
+      "parameters": {
+        "resource": "bill",
+        "operation": "getAll",
+        "filters": {
+          "query": "WHERE Balance > '0'"
+        }
+      },
+      "type": "n8n-nodes-base.quickbooks",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8efcb520-c135-471e-8317-a1aba21da1c3",
+      "name": "Get many bills",
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "QuickBooks Online account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const bills = $input.all();\n\nconst formattedBills = bills.map(item => {\n  const bill = item.json;\n  return {\n    id: bill.Id,\n    vendor_name: bill.VendorRef?.name || 'Unknown',\n    vendor_id: bill.VendorRef?.value,\n    amount: bill.TotalAmt,\n    balance: bill.Balance,\n    bill_date: bill.TxnDate,\n    due_date: bill.DueDate,\n    description: bill.Line?.[0]?.Description || '',\n    bill_number: bill.DocNumber || ''\n  };\n});\n\nreturn {\n  json: {\n    bills: formattedBills,\n    count: formattedBills.length\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f010449a-c5b7-452e-a8aa-8ac7405a051e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "708ff9ae-0828-46c6-8861-90d09f9a9b0a",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get many bills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many bills": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0ffcfa2b-a13a-4c8e-864f-105cfbcda9e7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "38336a295879c2ebdfed8c82e3ce4e30eed02601024aa696561c2e9529d21fbc"
+  },
+  "nodeGroups": [],
+  "id": "Kz21CddWPTYzh9Zk",
+  "tags": []
+}

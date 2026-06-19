@@ -1,0 +1,363 @@
+{
+  "name": "Bill Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "process-payment",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -640,
+        0
+      ],
+      "id": "171086cf-35b6-42df-9527-f91aae0d396e",
+      "name": "Webhook",
+      "webhookId": "process-payment"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 287887769,
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=287887769"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Bank",
+              "lookupValue": "={{ $('Webhook').item.json.body.bank_account }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "8959dfae-4bfe-42e2-8040-13fce0fa5345",
+      "name": "Get Bank",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "All Homes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Address",
+              "lookupValue": "={{ $('Webhook').item.json.body.property_address }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -224,
+        0
+      ],
+      "id": "c4b2f669-ab77-4d24-9da7-5d71165de682",
+      "name": "Get Property",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sandbox-quickbooks.api.intuit.com/v3/company/YOUR_QBO_COMPANY_ID/billpayment",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "quickBooksOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"VendorRef\": {\n    \"value\": \"{{ $('Webhook').item.json.body.vendor_id }}\"\n  },\n  \"TotalAmt\": {{ $('Webhook').item.json.body.amount }},\n  \"PayType\": \"Check\",\n  \"CheckPayment\": {\n    \"BankAccountRef\": {\n      \"value\": \"{{ $('Get Bank').item.json['Account ID'] }}\"\n    },\n    \"PrintStatus\": \"NeedToPrint\"\n  },\n  \"Line\": [\n    {\n      \"Amount\": {{ $('Webhook').item.json.body.amount }},\n      \"LinkedTxn\": [\n        {\n          \"TxnId\": \"{{ $('Webhook').item.json.body.bill_id }}\",\n          \"TxnType\": \"Bill\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "23d34e17-7cfe-471b-8f3d-7396d78a182e",
+      "name": "Create Bill Payment",
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "QuickBooks Online account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Get Bank').item.json['Workbook ID'] }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Webhook').item.json.body.property_address }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ITEM": "={{ $('Webhook').item.json.body.description }}",
+            "SUB": "={{ $('Webhook').item.json.body.vendor_name }}",
+            "PRICE": "={{ $('Webhook').item.json.body.amount }}",
+            "CLEARED": "X",
+            "DATE": "={{ $('Webhook').item.json.body.bill_date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ITEM",
+              "displayName": "ITEM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SUB",
+              "displayName": "SUB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRICE",
+              "displayName": "PRICE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CHECK #",
+              "displayName": "CHECK #",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CLEARED",
+              "displayName": "CLEARED",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "INTEREST",
+              "displayName": "INTEREST",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DATE",
+              "displayName": "DATE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DRAW",
+              "displayName": "DRAW",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        160,
+        0
+      ],
+      "id": "76f4d81c-a95f-4bb8-b1b4-93d1ce427f87",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "=={\n  \"success\": true,\n  \"message\": \"Payment recorded and sheet updated\",\n  \"billPaymentId\": \"{{ $('Create Bill Payment').item.json.BillPayment.Id }}\",\n  \"printUrl\": \"https://sandbox.qbo.intuit.com/app/printchecks?bankaccountid={{ $('Get Bank').item.json['Account ID'] }}&transactionid={{ $('Create Bill Payment').item.json.BillPayment.Id }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        368,
+        0
+      ],
+      "id": "ffd31793-f104-44a2-91f3-1d940c1bd618",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {},
+          "body": {
+            "bill_id": "200",
+            "vendor_name": "McDonald's",
+            "vendor_id": "67",
+            "amount": 850,
+            "bill_date": "2026-05-11",
+            "description": "French fries",
+            "property_address": "141 Peadbody Dr.",
+            "bank_account": "Bank 2",
+            "payment_date": "2026-05-11"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Bank",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bank": {
+      "main": [
+        [
+          {
+            "node": "Get Property",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Property": {
+      "main": [
+        [
+          {
+            "node": "Create Bill Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Bill Payment": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7ea2be28-2d90-4db3-855f-cb75341c8f86",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "38336a295879c2ebdfed8c82e3ce4e30eed02601024aa696561c2e9529d21fbc"
+  },
+  "nodeGroups": [],
+  "id": "bel3kjYvL6IBDkdN",
+  "tags": []
+}

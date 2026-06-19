@@ -1,0 +1,709 @@
+{
+  "name": "Property Entry",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "property-management",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        48,
+        -48
+      ],
+      "id": "262a2ceb-fc23-47de-8b3e-7ea38c850825",
+      "name": "Property Entry",
+      "webhookId": "property-management"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "displayName": "={{ $('Property Entry').item.json.body.property_address }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.quickbooks",
+      "typeVersion": 1,
+      "position": [
+        720,
+        48
+      ],
+      "id": "9a213fc7-7581-4d38-b170-4414948eb927",
+      "name": "Create Customer",
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "QuickBooks Online account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1000,
+        "filters": {
+          "query": "=WHERE DisplayName = '{{ $('Property Entry').item.json.body.property_address }}'"
+        }
+      },
+      "type": "n8n-nodes-base.quickbooks",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -48
+      ],
+      "id": "98365031-cf0e-47f3-8171-9578f5f5fcfc",
+      "name": "Customer Check",
+      "alwaysOutputData": false,
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "QuickBooks Online account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "All Homes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Address",
+              "lookupValue": "={{ $('Property Entry').item.json.body.property_address }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        -144
+      ],
+      "id": "e1d84ac1-63e1-4c68-a267-37b669056b67",
+      "name": "Master Sheet Check",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d3329e18-1690-4653-8f05-d95e969399fd",
+              "leftValue": "={{ $('Customer Check').first().json.Id != undefined }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        496,
+        -48
+      ],
+      "id": "a9a50fa3-773f-43c4-92b5-4c67e5539a34",
+      "name": "If Custom Exist",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d94fd9b3-d159-4d1a-b3ec-90f7b35a4a54",
+              "leftValue": "={{ $('Master Sheet Check').first().json.Address == undefined }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        944,
+        -144
+      ],
+      "id": "b3fc73ec-aeee-4c7a-b18e-9f93a734e32d",
+      "name": "If Exist in Master"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Get Bank (true)').item.json['Workbook ID'] }}",
+          "mode": "url"
+        },
+        "title": "={{ $('Property Entry').item.json.body.property_address }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1616,
+        -304
+      ],
+      "id": "557515c4-7799-4597-b013-949be7589cfd",
+      "name": "Create sheet (true)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 287887769,
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=287887769"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Bank",
+              "lookupValue": "={{ $('Property Entry').item.json.body.bank_account }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1168,
+        -304
+      ],
+      "id": "911d0fb7-09b6-4748-9b46-9ee7a24eed0c",
+      "name": "Get Bank (true)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 287887769,
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=287887769"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Bank",
+              "lookupValue": "={{ $('Property Entry').item.json.body.bank_account }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        48
+      ],
+      "id": "b848d10f-2b5c-4237-999b-9c8c4061a4e5",
+      "name": "Get Bank (false)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Get Bank (false)').item.json['Workbook ID'] }}",
+          "mode": "url"
+        },
+        "title": "={{ $('Property Entry').item.json.body.property_address }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1392,
+        48
+      ],
+      "id": "73e6e646-faa4-49ec-99c4-53fe37025018",
+      "name": "Create sheet (false)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $('Get Bank (false)').item.json['Workbook ID'] }}/values/{{ encodeURIComponent($('Property Entry').item.json.body.property_address) }}!A1:I1:append?valueInputOption=USER_ENTERED",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"values\": [\n    [\"ITEM\", \"SUB\", \"PRICE\", \"CHECK #\", \"CLEARED\", \"INTEREST\", \"DATE\", \"DRAW\" ]\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1616,
+        48
+      ],
+      "id": "1d0ca42c-f1c5-4ad0-87b1-0e4c7753a70b",
+      "name": "Create Columns (false)",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets Credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $('Get Bank (true)').item.json['Workbook ID'] }}/values/{{ encodeURIComponent($('Property Entry').item.json.body.property_address) }}!A1:I1:append?valueInputOption=USER_ENTERED",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"values\": [\n    [\"ITEM\", \"SUB\", \"PRICE\", \"CHECK #\", \"CLEARED\", \"INTEREST\", \"DATE\", \"DRAW\" ]\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1840,
+        -304
+      ],
+      "id": "a656fa57-2eb0-4484-aefa-7a031bb71fe4",
+      "name": "Create Columns (true)",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets Credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "All Homes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Bank": "={{ $('Property Entry').item.json.body.bank_account }}",
+            "Customer ID": "={{ $('Customer Check').item.json.Id }}",
+            "Date Added": "={{ $('Property Entry').item.json.body.date_added }}",
+            "Workboook ID": "={{ $json['Workbook ID'] }}",
+            "Address": "={{ $('Property Entry').item.json.body.property_address }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Bank",
+              "displayName": "Bank",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workboook ID",
+              "displayName": "Workboook ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer ID",
+              "displayName": "Customer ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1392,
+        -304
+      ],
+      "id": "16304d68-bbcd-4599-869f-0cff0acce5ff",
+      "name": "Add to Master Sheet (true)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Master Property Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "All Homes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Bank": "={{ $('Property Entry').item.json.body.bank_account }}",
+            "Customer ID": "={{ $('Create Customer').item.json.Id }}",
+            "Date Added": "={{ $('Property Entry').item.json.body.date_added }}",
+            "Workboook ID": "={{ $json['Workbook ID'] }}",
+            "Address": "={{ $('Property Entry').item.json.body.property_address }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Bank",
+              "displayName": "Bank",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workboook ID",
+              "displayName": "Workboook ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer ID",
+              "displayName": "Customer ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1168,
+        48
+      ],
+      "id": "f178aeae-675f-4b85-8ae2-a98ba1d8ed60",
+      "name": "Add to Master Sheet (false)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Property Entry": {
+      "main": [
+        [
+          {
+            "node": "Customer Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Customer": {
+      "main": [
+        [
+          {
+            "node": "Get Bank (false)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Check": {
+      "main": [
+        [
+          {
+            "node": "If Custom Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Sheet Check": {
+      "main": [
+        [
+          {
+            "node": "If Exist in Master",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Custom Exist": {
+      "main": [
+        [
+          {
+            "node": "Master Sheet Check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Exist in Master": {
+      "main": [
+        [
+          {
+            "node": "Get Bank (true)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Create sheet (true)": {
+      "main": [
+        [
+          {
+            "node": "Create Columns (true)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bank (true)": {
+      "main": [
+        [
+          {
+            "node": "Add to Master Sheet (true)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bank (false)": {
+      "main": [
+        [
+          {
+            "node": "Add to Master Sheet (false)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create sheet (false)": {
+      "main": [
+        [
+          {
+            "node": "Create Columns (false)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Master Sheet (true)": {
+      "main": [
+        [
+          {
+            "node": "Create sheet (true)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Master Sheet (false)": {
+      "main": [
+        [
+          {
+            "node": "Create sheet (false)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "903a421b-a8e0-4c2f-bea3-e1a571801889",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "38336a295879c2ebdfed8c82e3ce4e30eed02601024aa696561c2e9529d21fbc"
+  },
+  "nodeGroups": [],
+  "id": "8RNVZ8ZRJoDSJ1SA",
+  "tags": []
+}
